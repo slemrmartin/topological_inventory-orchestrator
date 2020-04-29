@@ -96,12 +96,14 @@ module TopologicalInventory
         ### Metrics scraping
 
         def metrics_text_to_h(metrics_scrape)
-          metrics_scrape.each_line.with_object({}) do |line, h|
+          hash = metrics_scrape.each_line.with_object({}) do |line, h|
             next if line.start_with?("#") || line.chomp.empty?
 
             k, v = line.split(" ")
             h[k] = v
           end
+          logger.debug(hash.inspect)
+          hash
         end
 
         def percent_usage_from_metrics
