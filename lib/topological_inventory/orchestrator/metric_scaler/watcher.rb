@@ -39,9 +39,9 @@ module TopologicalInventory
         def scale_to_desired_replicas
           return unless configured?
 
-          desired_count = desired_replicas
+          desired_count = Time.now.min % 2 == 1 ? 1 : 2 # desired_replicas
 
-          return if desired_count == deployment_config.spec.replicas # already at max or minimum
+          # return if desired_count == deployment_config.spec.replicas # already at max or minimum
 
           logger.info("Scaling #{deployment_config_name} to #{desired_count} replicas")
           object_manager.scale(deployment_config_name, desired_count)
@@ -96,14 +96,12 @@ module TopologicalInventory
         ### Metrics scraping
 
         def metrics_text_to_h(metrics_scrape)
-          hash = metrics_scrape.each_line.with_object({}) do |line, h|
+          metrics_scrape.each_line.with_object({}) do |line, h|
             next if line.start_with?("#") || line.chomp.empty?
 
             k, v = line.split(" ")
             h[k] = v
           end
-          logger.debug(hash.inspect)
-          hash
         end
 
         def percent_usage_from_metrics
